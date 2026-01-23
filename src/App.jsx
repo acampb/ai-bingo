@@ -66,7 +66,9 @@ export default function App() {
   useEffect(() => {
     setHandlers({
       onGameState: (state) => {
-        if (state.status === 'playing') {
+        // Only switch to game view if we have our board ready
+        // (prevents black screen for players joining mid-game)
+        if (state.status === 'playing' && board) {
           setView(VIEWS.GAME)
         }
         if (state.players[playerId]) {
@@ -203,6 +205,13 @@ export default function App() {
       setBoard(newBoard)
     }
   }, [isCreator, sharedPool, board])
+
+  // Handle mid-game join: switch to game view once board is ready
+  useEffect(() => {
+    if (view === VIEWS.LOBBY && gameState?.status === 'playing' && board) {
+      setView(VIEWS.GAME)
+    }
+  }, [view, gameState?.status, board])
 
   useEffect(() => {
     if (connected && sessionId && playerName && board && view === VIEWS.LOBBY && !hasJoinedRef.current) {
