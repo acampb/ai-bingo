@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply font-display bg-ink-950 text-ink-100;
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  /* Selection styling */
+  ::selection {
+    @apply bg-coral-500/30 text-coral-100;
+  }
+}
+
+/* 3D flip animation styles */
+.perspective {
+  perspective: 1200px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Noise texture overlay */
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Paper texture for bingo card */
+.paper-texture {
+  background-color: #faf9f6;
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,0.01) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.02) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-blend-mode: multiply;
+}
+
+/* Scan line effect */
+.scan-lines {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-lines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Glow effects */
+.glow-coral {
+  box-shadow:
+    0 0 20px rgba(255, 107, 71, 0.3),
+    0 0 40px rgba(255, 107, 71, 0.15);
+}
+
+.glow-electric {
+  box-shadow:
+    0 0 20px rgba(0, 201, 204, 0.3),
+    0 0 40px rgba(0, 201, 204, 0.15);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-ink-900 rounded;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-ink-600 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-ink-500;
+}
+
+/* Button base styles */
+@layer components {
+  .btn {
+    @apply font-display font-semibold tracking-wide transition-all duration-200 ease-out;
+  }
+
+  .btn-primary {
+    @apply bg-coral-500 text-white hover:bg-coral-400 active:bg-coral-600;
+    @apply shadow-lg shadow-coral-500/25 hover:shadow-xl hover:shadow-coral-500/30;
+    @apply hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply bg-ink-800 text-ink-200 hover:bg-ink-700 hover:text-ink-100;
+    @apply border border-ink-700 hover:border-ink-600;
+  }
+
+  .btn-ghost {
+    @apply text-ink-400 hover:text-ink-200 hover:bg-ink-800/50;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-ink-900/80 backdrop-blur-sm border border-ink-800 rounded-2xl;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-3 bg-ink-900 border-2 border-ink-700 rounded-xl;
+    @apply text-ink-100 placeholder-ink-500;
+    @apply focus:outline-none focus:border-coral-500 focus:ring-2 focus:ring-coral-500/20;
+    @apply transition-all duration-200;
+  }
+}
+
+/* Stamp effect for marked squares */
+.stamp-marked {
+  position: relative;
+}
+
+.stamp-marked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: rgba(255, 107, 71, 0.9);
+  transform: rotate(-12deg);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Winning line highlight */
+.winning-square {
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(255, 107, 71, 0.5),
+      0 0 30px rgba(255, 107, 71, 0.3),
+      inset 0 0 10px rgba(255, 107, 71, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(255, 107, 71, 0.7),
+      0 0 50px rgba(255, 107, 71, 0.4),
+      inset 0 0 20px rgba(255, 107, 71, 0.2);
+  }
+}
+
+/* Stagger animation delays for grid items */
+.stagger-1 { animation-delay: 0.02s; }
+.stagger-2 { animation-delay: 0.04s; }
+.stagger-3 { animation-delay: 0.06s; }
+.stagger-4 { animation-delay: 0.08s; }
+.stagger-5 { animation-delay: 0.10s; }
+.stagger-6 { animation-delay: 0.12s; }
+.stagger-7 { animation-delay: 0.14s; }
+.stagger-8 { animation-delay: 0.16s; }
+.stagger-9 { animation-delay: 0.18s; }
+.stagger-10 { animation-delay: 0.20s; }
