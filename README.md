@@ -3,6 +3,12 @@
 A real-time multiplayer bingo game for surviving AI-heavy meetings. Create a session, share the code with your team, and race to mark buzzwords as you hear them. When someone marks a word, it marks on **everyone's** board.
 
 <p align="center">
+  <a href="https://ai-bingo-theta.vercel.app/">
+    <img src="https://img.shields.io/badge/%F0%9F%8E%B2%20Play%20it%20live-ai--bingo--theta.vercel.app-ff4f5e?style=for-the-badge" alt="Play it live" />
+  </a>
+</p>
+
+<p align="center">
   <img src="docs/demo.gif" alt="AI Buzzword Bingo gameplay" width="600" />
 </p>
 
