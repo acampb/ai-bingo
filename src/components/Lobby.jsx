@@ -5,6 +5,7 @@ export default function Lobby({
   sessionName,
   players,
   playerId,
+  creatorId,
   isCreator,
   connected,
   onStartGame,
@@ -129,7 +130,7 @@ export default function Lobby({
                   </div>
 
                   {/* Host badge */}
-                  {index === 0 && (
+                  {id === creatorId && (
                     <span className="font-mono text-xs bg-electric-500/20 text-electric-400 px-2 py-1 rounded">
                       Host
                     </span>

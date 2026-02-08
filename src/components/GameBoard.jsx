@@ -1,5 +1,5 @@
 import BingoSquare from './BingoSquare'
-import PlayerBoard from './PlayerBoard'
+import BuzzwordTicker from './BuzzwordTicker'
 
 export default function GameBoard({
   board,
@@ -11,6 +11,7 @@ export default function GameBoard({
   sessionName,
   onSquareClick,
   isGameOver,
+  calledBuzzwords,
 }) {
   if (!board) return null
 
@@ -18,55 +19,23 @@ export default function GameBoard({
   const winningSet = new Set(winningLine?.map(([r, c]) => `${r},${c}`) || [])
   const newlyMarkedKey = newlyMarked ? `${newlyMarked[0]},${newlyMarked[1]}` : null
 
-  const otherPlayers = Object.entries(players).filter(([id]) => id !== playerId)
-  const calledCount = markedSquares.length - 1 // Exclude free space
+  // Sort all players by score (marked squares count) descending
+  const sortedPlayers = Object.entries(players).sort(
+    ([, a], [, b]) => (b.markedSquares?.length || 0) - (a.markedSquares?.length || 0)
+  )
 
   return (
-    <div className="min-h-screen p-4 sm:p-6">
+    <div className="min-h-screen p-4 sm:p-6 pb-16">
       {/* Header */}
       <header className="max-w-6xl mx-auto mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-display font-bold text-xl sm:text-2xl text-ink-100 mb-1">
-              {sessionName}
-            </h1>
-            <div className="flex items-center gap-4 font-mono text-xs text-ink-500">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-electric-400" />
-                {Object.keys(players).length} player{Object.keys(players).length !== 1 ? 's' : ''}
-              </span>
-              <span>
-                {calledCount} buzzword{calledCount !== 1 ? 's' : ''} called
-              </span>
-            </div>
-          </div>
-
-          {/* Quick stats */}
-          <div className="hidden sm:flex items-center gap-2">
-            <div className="px-3 py-2 rounded-lg bg-ink-900 border border-ink-800">
-              <span className="font-mono text-xs text-ink-500">Progress</span>
-              <div className="font-display font-bold text-coral-400">
-                {markedSquares.length}/25
-              </div>
-            </div>
-          </div>
-        </div>
+        <h1 className="font-display font-bold text-xl sm:text-2xl text-ink-100">
+          {sessionName}
+        </h1>
       </header>
 
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Main board */}
         <div className="flex-1 max-w-xl mx-auto lg:mx-0 w-full">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-mono text-xs uppercase tracking-wider text-ink-500">
-              Your Board
-            </h2>
-            {!isGameOver && (
-              <span className="font-mono text-xs text-ink-600">
-                Tap a word when you hear it
-              </span>
-            )}
-          </div>
-
           {/* Bingo card container with paper-like appearance */}
           <div className="relative">
             {/* Card shadow/depth */}
@@ -110,29 +79,53 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* Other players sidebar */}
-        {otherPlayers.length > 0 && (
-          <div className="lg:w-80">
-            <h2 className="font-mono text-xs uppercase tracking-wider text-ink-500 mb-4 lg:mb-3">
-              Other Players ({otherPlayers.length})
-            </h2>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-4">
-              {otherPlayers.map(([id, player]) => (
-                <PlayerBoard
-                  key={id}
-                  board={player.board}
-                  markedSquares={player.markedSquares}
-                  winningLine={winningLine}
-                  playerName={player.name}
-                  isCurrentPlayer={false}
-                  size="small"
-                />
-              ))}
-            </div>
+        {/* Scoreboard */}
+        <div className="lg:w-80">
+          <div className="card overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-ink-800">
+                  <th className="font-display text-sm font-extrabold text-coral-500 text-left px-3 py-2 w-10">#</th>
+                  <th className="font-display text-sm font-extrabold text-coral-500 text-left px-3 py-2">Player</th>
+                  <th className="font-display text-sm font-extrabold text-coral-500 text-right px-3 py-2 w-16">Squares</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedPlayers.map(([id, player], index) => {
+                  const count = (player.markedSquares?.length || 1) - 1
+                  const isCurrentPlayer = id === playerId
+                  return (
+                    <tr
+                      key={id}
+                      className={isCurrentPlayer ? 'bg-coral-500/10' : 'even:bg-ink-800/30'}
+                    >
+                      <td className={`px-3 py-2 font-mono font-bold ${
+                        index === 0 ? 'text-coral-400' : 'text-ink-500'
+                      }`}>
+                        {index + 1}
+                      </td>
+                      <td className={`px-3 py-2 truncate max-w-0 ${
+                        isCurrentPlayer
+                          ? 'font-display font-bold text-coral-300'
+                          : 'font-display font-medium text-ink-200'
+                      }`}>
+                        {player.name}{isCurrentPlayer ? ' (you)' : ''}
+                      </td>
+                      <td className={`px-3 py-2 text-right font-mono font-bold ${
+                        index === 0 ? 'text-coral-400' : 'text-ink-400'
+                      }`}>
+                        {count}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-        )}
+        </div>
       </div>
+
+      <BuzzwordTicker buzzwords={calledBuzzwords} />
     </div>
   )
 }

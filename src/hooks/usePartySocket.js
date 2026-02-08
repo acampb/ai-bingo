@@ -79,6 +79,29 @@ export function usePartySocket(sessionId, enabled = true) {
         handlersRef.current.onGameStarted?.()
         break
       case 'buzzword_marked':
+        // Update markedSquares for all players in gameState so the scoreboard stays current
+        setGameState((prev) => {
+          if (!prev) return prev
+          const updatedPlayers = { ...prev.players }
+          for (const [id, player] of Object.entries(updatedPlayers)) {
+            for (let row = 0; row < 5; row++) {
+              for (let col = 0; col < 5; col++) {
+                if (player.board[row][col] === data.buzzword) {
+                  const alreadyMarked = player.markedSquares.some(
+                    ([r, c]) => r === row && c === col
+                  )
+                  if (!alreadyMarked) {
+                    updatedPlayers[id] = {
+                      ...player,
+                      markedSquares: [...player.markedSquares, [row, col]],
+                    }
+                  }
+                }
+              }
+            }
+          }
+          return { ...prev, players: updatedPlayers }
+        })
         handlersRef.current.onBuzzwordMarked?.(data.buzzword, data.byPlayerId)
         break
       case 'winner':

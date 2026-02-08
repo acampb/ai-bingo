@@ -2,42 +2,39 @@
 export const BUZZWORDS = {
   technical: [
     'LLM', 'RAG', 'Fine-tuning', 'Embeddings', 'Vector Database',
-    'Hallucination', 'Prompt Engineering', 'Chain-of-Thought', 'Few-shot Learning',
-    'Zero-shot', 'Transformer', 'Attention Mechanism', 'Inference', 'Training Data',
-    'Model Collapse', 'Tokenization', 'Context Window', 'Guardrails', 'RLHF',
-    'Weights', 'Parameters', 'Benchmark', 'Eval', 'System Prompt', 'Temperature',
-    'Top-p', 'Latency', 'Throughput', 'Distillation', 'Quantization', 'LoRA',
-    'Synthetic Data'
+    'Hallucination', 'Prompt Engineering', 'Transformer', 'Inference',
+    'Training Data', 'Tokenization', 'Context Window', 'Benchmark',
+    'Temperature', 'Throughput'
   ],
   hype: [
-    'AGI', 'Superintelligence', 'Emergent Capabilities', 'Reasoning', 'Agentic',
-    'Multimodal', 'Foundation Model', 'Frontier Model', 'Alignment', 'AI Safety',
-    'Responsible AI', 'Explainable AI', 'Sentient', 'Autonomous', 'Self-improving',
-    'Human-in-the-loop', 'Scaling Laws', 'Bitter Lesson', 'Moat', 'Wrapper',
-    'AI Doomer', 'AI Accelerationist', 'e/acc', 'Effective Altruism', 'P(doom)',
-    'Shoggoth', 'Stochastic Parrot', 'Vibe Coding'
+    'AGI', 'Superintelligence', 'Agentic', 'Multimodal', 'Foundation Model',
+    'Frontier Model', 'AI Safety', 'Responsible AI', 'Explainable AI',
+    'Autonomous', 'Self-improving', 'Human-in-the-loop', 'Wrapper', 'Vibe Coding'
   ],
   companies: [
-    'OpenAI', 'Anthropic', 'Google DeepMind', 'Microsoft', 'Meta AI', 'xAI',
-    'Mistral', 'Cohere', 'Stability AI', 'Midjourney', 'Runway', 'Hugging Face',
-    'Perplexity', 'Inflection', 'Character AI', 'Replika', 'Scale AI',
-    'Databricks', 'Snowflake', 'NVIDIA'
+    'OpenAI', 'Anthropic', 'Google', 'Amazon', 'Microsoft', 'Meta AI', 'xAI',
+    'Midjourney', 'Hugging Face', 'Perplexity', 'Databricks', 'Snowflake',
+    'NVIDIA'
   ],
   models: [
-    'GPT', 'Claude', 'Gemini', 'Llama', 'Copilot', 'ChatGPT', 'Grok', 'Mixtral',
-    'DALL-E', 'Stable Diffusion', 'Sora', 'Whisper', 'CLIP'
+    'GPT', 'Claude', 'Gemini', 'Llama', 'Copilot', 'ChatGPT', 'Grok',
+    'DALL-E', 'Stable Diffusion', 'Sora', 'GitHub Copilot', 'Claude Code',
+    'Opus', 'Sonnet', 'Codex', 'Google Antigravity', 'Figma Make',
+    'Copilot Studio', 'Glean'
   ],
   marketing: [
     'AI-powered', 'Intelligent', 'Smart', 'Assistant', 'Automation',
     'Next-generation', 'Cutting-edge', 'State-of-the-art', 'Democratizing AI',
     'AI-native', 'GenAI', 'Cognitive', 'Predictive', 'Personalized', 'Open Source',
-    'Open Weights', 'Closed Source', 'API Access', 'Rate Limits', 'Tokens per Second'
+    'API Access', 'Rate Limits', 'Tokens per Second'
   ],
   infrastructure: [
-    'Cloud-native', 'API-first', 'MLOps', 'Model Serving', 'GPU Cluster', 'H100',
-    'TPU', 'CUDA', 'Distributed Training', 'Edge AI', 'On-device', 'Real-time',
-    'Low-latency', 'Inference Endpoint', 'Model Garden', 'Bedrock', 'Azure OpenAI',
-    'Vertex AI'
+    'Cloud-native', 'API-first', 'MLOps', 'Model Garden', 'Bedrock',
+    'Azure OpenAI', 'Vertex AI', 'Microsoft Foundry'
+  ],
+  devtools: [
+    'Cursor', 'Windsurf', 'Test Driven Development', 'Agents', 'Skills',
+    'MCP', 'Plugins', 'Prototype'
   ]
 }
 

@@ -291,17 +291,6 @@ export default class BingoServer implements Party.Server {
     }
     if (complete2) return { won: true, winningLine: diag2 };
 
-    // Check four corners
-    const corners: [number, number][] = [
-      [0, 0],
-      [0, 4],
-      [4, 0],
-      [4, 4],
-    ];
-    if (corners.every(([r, c]) => isMarked(r, c))) {
-      return { won: true, winningLine: corners };
-    }
-
     return { won: false, winningLine: null };
   }
 

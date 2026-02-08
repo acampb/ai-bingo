@@ -25,9 +25,16 @@ function getPlayerId() {
   return id
 }
 
+// Read session code from URL synchronously so it's available on first render
+function getInitialSessionId() {
+  const params = new URLSearchParams(window.location.search)
+  const code = params.get('session')
+  return code ? code.toUpperCase() : null
+}
+
 export default function App() {
   const [view, setView] = useState(VIEWS.LANDING)
-  const [sessionId, setSessionId] = useState(null)
+  const [sessionId, setSessionId] = useState(getInitialSessionId)
   const [sessionName, setSessionName] = useState('')
   const [playerId] = useState(getPlayerId)
   const [playerName, setPlayerName] = useState('')
@@ -41,15 +48,8 @@ export default function App() {
   const [showWinModal, setShowWinModal] = useState(false)
   const [isCreator, setIsCreator] = useState(false)
   const [joinError, setJoinError] = useState(null)
+  const [calledBuzzwords, setCalledBuzzwords] = useState([])
   const hasJoinedRef = useRef(false)
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const code = params.get('session')
-    if (code) {
-      setSessionId(code.toUpperCase())
-    }
-  }, [])
 
   const {
     connected,
@@ -79,6 +79,9 @@ export default function App() {
         if (state.sharedPool?.length > 0) {
           setSharedPool(state.sharedPool)
         }
+        if (state.calledBuzzwords?.length > 0) {
+          setCalledBuzzwords(state.calledBuzzwords)
+        }
 
         if (state.winner) {
           const winnerPlayer = state.players[state.winner]
@@ -96,20 +99,22 @@ export default function App() {
         setView(VIEWS.GAME)
       },
       onBuzzwordMarked: (buzzword, byPlayerId) => {
+        setCalledBuzzwords((prev) => prev.includes(buzzword) ? prev : [...prev, buzzword])
         if (byPlayerId === playerId) return
 
         if (board) {
           for (let row = 0; row < 5; row++) {
             for (let col = 0; col < 5; col++) {
               if (board[row][col] === buzzword) {
-                const alreadyMarked = markedSquares.some(
-                  ([r, c]) => r === row && c === col
-                )
-                if (!alreadyMarked) {
-                  setNewlyMarked([row, col])
-                  setMarkedSquares((prev) => [...prev, [row, col]])
-                  setTimeout(() => setNewlyMarked(null), 600)
-                }
+                setMarkedSquares((prev) => {
+                  const alreadyMarked = prev.some(
+                    ([r, c]) => r === row && c === col
+                  )
+                  if (alreadyMarked) return prev
+                  return [...prev, [row, col]]
+                })
+                setNewlyMarked([row, col])
+                setTimeout(() => setNewlyMarked(null), 600)
               }
             }
           }
@@ -126,6 +131,7 @@ export default function App() {
         const newBoard = generateBoard(sharedPool)
         setBoard(newBoard)
         setMarkedSquares([[2, 2]])
+        setCalledBuzzwords([])
         setWinningLine(null)
         setWinner(null)
         setShowWinModal(false)
@@ -136,7 +142,7 @@ export default function App() {
         setJoinError(msg)
       },
     })
-  }, [setHandlers, board, markedSquares, playerId, playerName, joinGame, sharedPool])
+  }, [setHandlers, board, playerId, playerName, joinGame, sharedPool])
 
   const fireConfetti = () => {
     const duration = 4000
@@ -199,6 +205,21 @@ export default function App() {
     []
   )
 
+  // Timeout: if a joiner connects but never receives game state, the session doesn't exist
+  useEffect(() => {
+    if (!isCreator && view === VIEWS.LOBBY && connected && !sharedPool) {
+      const timeout = setTimeout(() => {
+        setJoinError('Session not found. Check your code and try again.')
+        setSessionId(null)
+        setBoard(null)
+        setSharedPool(null)
+        setView(VIEWS.LANDING)
+        window.history.pushState({}, '', window.location.pathname)
+      }, 5000)
+      return () => clearTimeout(timeout)
+    }
+  }, [isCreator, view, connected, sharedPool])
+
   useEffect(() => {
     if (!isCreator && sharedPool && sharedPool.length > 0 && !board) {
       const newBoard = generateBoard(sharedPool)
@@ -245,6 +266,7 @@ export default function App() {
 
       setNewlyMarked([row, col])
       setMarkedSquares((prev) => [...prev, [row, col]])
+      setCalledBuzzwords((prev) => prev.includes(buzzword) ? prev : [...prev, buzzword])
       setTimeout(() => setNewlyMarked(null), 600)
 
       markBuzzword(playerId, buzzword)
@@ -265,6 +287,7 @@ export default function App() {
     setSessionId(null)
     setBoard(null)
     setMarkedSquares([[2, 2]])
+    setCalledBuzzwords([])
     setWinningLine(null)
     setWinner(null)
     setShowWinModal(false)
@@ -300,6 +323,7 @@ export default function App() {
             sessionName={sessionName}
             players={gameState?.players || {}}
             playerId={playerId}
+            creatorId={gameState?.creatorId}
             isCreator={isCreator}
             connected={connected}
             onStartGame={handleStartGame}
@@ -319,6 +343,7 @@ export default function App() {
             sessionName={sessionName}
             onSquareClick={handleSquareClick}
             isGameOver={!!winner}
+            calledBuzzwords={calledBuzzwords}
           />
         )}
 
