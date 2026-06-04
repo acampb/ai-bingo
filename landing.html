@@ -1,494 +1,531 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Bingo — The Buzzword Bingo Game for Tech Folks</title>
-  <meta name="description" content="Play real-time AI buzzword bingo with your team. LLM, AGI, Vibe Coding — mark them all. First to BINGO wins." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/robot.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Buzzword Bingo — Survive your next meeting</title>
+    <meta name="description" content="Real-time multiplayer bingo for AI-heavy meetings. Create a session, share the code, and race your team to mark buzzwords as you hear them." />
 
-    :root {
-      --coral-400: #ff8c70;
-      --coral-500: #ff6b47;
-      --coral-600: #f04a23;
-      --electric-400: #0ce6e6;
-      --electric-500: #00c9cc;
-      --ink-700: #4c4c57;
-      --ink-800: #2d2d35;
-      --ink-900: #1a1a1f;
-      --ink-950: #0f0f12;
-      --ink-100: #eeeef0;
-      --ink-200: #d9d9de;
-      --ink-400: #91919f;
-      --ink-500: #747483;
-    }
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    html { font-family: 'Syne', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    <style>
+      /* ── Reset & base ──────────────────────────────────────────── */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background-color: var(--ink-950);
-      color: var(--ink-100);
-      min-height: 100dvh;
-      overflow-x: hidden;
-    }
+      :root {
+        --coral-400: #ff8c70;
+        --coral-500: #ff6b47;
+        --coral-600: #f04a23;
+        --electric-400: #0ce6e6;
+        --electric-500: #00c9cc;
+        --ink-700:  #4c4c57;
+        --ink-800:  #2d2d35;
+        --ink-900:  #1a1a1f;
+        --ink-950:  #0f0f12;
+        --ink-100:  #eeeef0;
+        --ink-300:  #b8b8c1;
+        --ink-400:  #91919f;
+        --ink-500:  #747483;
+        --font-display: 'Syne', system-ui, sans-serif;
+        --font-mono:    'JetBrains Mono', monospace;
+      }
 
-    /* ── Noise overlay ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-      opacity: 0.03;
-      pointer-events: none;
-      z-index: 0;
-    }
+      html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
 
-    /* ── Scan lines ── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.03) 2px,
-        rgba(0,0,0,0.03) 4px
-      );
-      pointer-events: none;
-      z-index: 0;
-    }
+      body {
+        background-color: var(--ink-950);
+        color: var(--ink-100);
+        font-family: var(--font-display);
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
 
-    /* ── Grid background ── */
-    .grid-bg {
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg stroke='%23ffffff' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0 0h60v60H0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
+      ::selection { background: rgba(255, 107, 71, 0.3); color: #ffede8; }
 
-    /* ── Ambient glows ── */
-    .glow-coral-ambient {
-      position: fixed;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,107,71,0.12) 0%, transparent 70%);
-      top: -200px;
-      right: -150px;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .glow-electric-ambient {
-      position: fixed;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,201,204,0.09) 0%, transparent 70%);
-      bottom: -150px;
-      left: -100px;
-      pointer-events: none;
-      z-index: 0;
-    }
+      /* ── Noise overlay ─────────────────────────────────────────── */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 0;
+      }
 
-    /* ── Layout ── */
-    .page {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100dvh;
-      padding: 0 1.5rem;
-    }
+      /* ── Grid bg ───────────────────────────────────────────────── */
+      .bg-grid {
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg stroke='%23ffffff' stroke-width='0.5' stroke-opacity='0.04'%3E%3Cpath d='M0 0h60v60H0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
 
-    /* ── Nav ── */
-    nav {
-      width: 100%;
-      max-width: 900px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.75rem 0;
-    }
+      /* ── Layout ────────────────────────────────────────────────── */
+      .page {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+      }
 
-    .logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.125rem;
-      letter-spacing: 0.03em;
-      color: var(--ink-100);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .logo-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--coral-500);
-      box-shadow: 0 0 8px var(--coral-500), 0 0 16px rgba(255,107,71,0.4);
-    }
+      /* ── Nav ───────────────────────────────────────────────────── */
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
 
-    .nav-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6875rem;
-      font-weight: 500;
-      color: var(--electric-500);
-      background: rgba(0,201,204,0.08);
-      border: 1px solid rgba(0,201,204,0.2);
-      border-radius: 999px;
-      padding: 0.25rem 0.75rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 800;
+        font-size: 1rem;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+        color: var(--ink-100);
+      }
 
-    /* ── Hero ── */
-    .hero {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 4rem 0 3rem;
-      max-width: 720px;
-      width: 100%;
-      gap: 0;
-    }
+      .nav-logo .emoji { font-size: 1.25rem; }
 
-    .hero-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--coral-500);
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .hero-tag::before,
-    .hero-tag::after {
-      content: '';
-      display: inline-block;
-      width: 24px;
-      height: 1px;
-      background: var(--coral-500);
-      opacity: 0.6;
-    }
+      .nav-badge {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(255, 107, 71, 0.15);
+        color: var(--coral-400);
+        border: 1px solid rgba(255, 107, 71, 0.3);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
 
-    h1 {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(2.5rem, 8vw, 5rem);
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      margin-bottom: 1.5rem;
-    }
+      /* ── Hero ──────────────────────────────────────────────────── */
+      .hero {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 5rem 1.5rem 4rem;
+        gap: 2.5rem;
+      }
 
-    .gradient-text {
-      background: linear-gradient(135deg, var(--coral-400) 0%, var(--coral-500) 40%, var(--electric-400) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+      .hero-eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--electric-500);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
 
-    .hero-sub {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(1rem, 2.5vw, 1.25rem);
-      color: var(--ink-400);
-      line-height: 1.6;
-      max-width: 520px;
-      margin-bottom: 2.5rem;
-    }
+      .hero-eyebrow::before,
+      .hero-eyebrow::after {
+        content: '';
+        display: block;
+        width: 2rem;
+        height: 1px;
+        background: var(--electric-500);
+        opacity: 0.5;
+      }
 
-    /* ── CTA ── */
-    .cta-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.875rem;
-      justify-content: center;
-      margin-bottom: 3.5rem;
-    }
+      .hero-title {
+        font-size: clamp(2.75rem, 8vw, 5.5rem);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        max-width: 14ch;
+      }
 
-    .btn {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.9375rem;
-      letter-spacing: 0.02em;
-      border: none;
-      border-radius: 0.75rem;
-      padding: 0.875rem 2rem;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-    }
+      .hero-title .accent {
+        background: linear-gradient(135deg, var(--coral-500), var(--coral-400));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
 
-    .btn-primary {
-      background: var(--coral-500);
-      color: #fff;
-      box-shadow: 0 8px 24px rgba(255,107,71,0.3), 0 2px 8px rgba(255,107,71,0.2);
-    }
-    .btn-primary:hover {
-      background: var(--coral-400);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(255,107,71,0.4), 0 4px 12px rgba(255,107,71,0.25);
-    }
-    .btn-primary:active { transform: translateY(0); }
+      .hero-subtitle {
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        color: var(--ink-400);
+        max-width: 44ch;
+        line-height: 1.6;
+        font-weight: 400;
+      }
 
-    .btn-secondary {
-      background: var(--ink-800);
-      color: var(--ink-200);
-      border: 1px solid var(--ink-700);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    .btn-secondary:hover {
-      background: rgba(77,77,87,0.7);
-      color: var(--ink-100);
-      border-color: var(--ink-500);
-      transform: translateY(-2px);
-    }
-    .btn-secondary:active { transform: translateY(0); }
+      /* ── CTA buttons ───────────────────────────────────────────── */
+      .cta-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+      }
 
-    /* ── Mini bingo card preview ── */
-    .board-preview {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
-      width: min(320px, 90vw);
-      margin-bottom: 4rem;
-    }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 2rem;
+        border-radius: 0.875rem;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
 
-    .board-header {
-      display: contents;
-    }
+      .btn:hover  { transform: translateY(-2px); }
+      .btn:active { transform: translateY(0); }
 
-    .board-letter {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 0.875rem;
-      text-align: center;
-      padding: 0.375rem 0;
-      color: var(--coral-500);
-      letter-spacing: 0.12em;
-    }
+      .btn-primary {
+        background: var(--coral-500);
+        color: #fff;
+        box-shadow: 0 4px 24px rgba(255, 107, 71, 0.35), 0 1px 4px rgba(0,0,0,0.3);
+      }
+      .btn-primary:hover {
+        background: var(--coral-400);
+        box-shadow: 0 8px 32px rgba(255, 107, 71, 0.45), 0 2px 6px rgba(0,0,0,0.3);
+      }
 
-    .board-cell {
-      background: var(--ink-900);
-      border: 1px solid var(--ink-800);
-      border-radius: 6px;
-      padding: 6px 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.45rem;
-      font-weight: 500;
-      color: var(--ink-400);
-      text-align: center;
-      line-height: 1.3;
-      min-height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-    }
+      .btn-secondary {
+        background: var(--ink-800);
+        color: var(--ink-200, #d9d9de);
+        border: 1px solid var(--ink-700);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      }
+      .btn-secondary:hover {
+        background: #38383f;
+        border-color: var(--ink-500);
+      }
 
-    .board-cell.marked {
-      background: rgba(255,107,71,0.15);
-      border-color: rgba(255,107,71,0.4);
-      color: var(--coral-400);
-      box-shadow: 0 0 10px rgba(255,107,71,0.2), inset 0 0 8px rgba(255,107,71,0.08);
-    }
+      /* ── Mini bingo preview ────────────────────────────────────── */
+      .bingo-preview {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+        width: min(340px, 80vw);
+        padding: 1rem;
+        background: rgba(26, 26, 31, 0.8);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 1.25rem;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+        animation: float 6s ease-in-out infinite;
+      }
 
-    .board-cell.free {
-      background: rgba(0,201,204,0.1);
-      border-color: rgba(0,201,204,0.3);
-      color: var(--electric-500);
-      font-size: 1rem;
-      box-shadow: 0 0 10px rgba(0,201,204,0.15);
-    }
+      .bingo-preview .cell {
+        aspect-ratio: 1;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 0.38rem;
+        font-weight: 600;
+        text-align: center;
+        padding: 3px;
+        line-height: 1.2;
+        background: var(--ink-800);
+        color: var(--ink-300);
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+        user-select: none;
+      }
 
-    /* ── Feature chips ── */
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.625rem;
-      justify-content: center;
-      margin-bottom: 4rem;
-      max-width: 600px;
-    }
+      .bingo-preview .cell.marked {
+        background: rgba(255, 107, 71, 0.2);
+        color: var(--coral-400);
+        border-color: rgba(255, 107, 71, 0.35);
+        box-shadow: inset 0 0 8px rgba(255, 107, 71, 0.15);
+      }
 
-    .chip {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6875rem;
-      font-weight: 500;
-      color: var(--ink-400);
-      background: rgba(45,45,53,0.6);
-      border: 1px solid var(--ink-800);
-      border-radius: 999px;
-      padding: 0.3125rem 0.875rem;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
+      .bingo-preview .cell.free {
+        background: rgba(0, 201, 204, 0.15);
+        color: var(--electric-400);
+        border-color: rgba(0, 201, 204, 0.3);
+        font-size: 0.85rem;
+      }
 
-    /* ── Footer ── */
-    footer {
-      width: 100%;
-      max-width: 900px;
-      padding: 1.5rem 0 2rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.6875rem;
-      color: var(--ink-500);
-    }
+      .bingo-preview .cell.win {
+        background: rgba(255, 107, 71, 0.35);
+        color: var(--coral-400);
+        border-color: rgba(255, 107, 71, 0.6);
+        box-shadow:
+          0 0 10px rgba(255, 107, 71, 0.5),
+          0 0 24px rgba(255, 107, 71, 0.25),
+          inset 0 0 10px rgba(255, 107, 71, 0.1);
+        animation: glow-pulse 1.5s ease-in-out infinite;
+      }
 
-    /* ── Animations ── */
-    @keyframes slide-up {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+      @keyframes glow-pulse {
+        0%, 100% { box-shadow: 0 0 8px rgba(255,107,71,0.5), 0 0 20px rgba(255,107,71,0.25), inset 0 0 8px rgba(255,107,71,0.1); }
+        50%       { box-shadow: 0 0 18px rgba(255,107,71,0.7), 0 0 40px rgba(255,107,71,0.4), inset 0 0 16px rgba(255,107,71,0.2); }
+      }
 
-    @keyframes glow-pulse {
-      0%, 100% { box-shadow: 0 0 10px rgba(255,107,71,0.5), 0 0 30px rgba(255,107,71,0.3), inset 0 0 10px rgba(255,107,71,0.1); }
-      50%       { box-shadow: 0 0 20px rgba(255,107,71,0.7), 0 0 50px rgba(255,107,71,0.4), inset 0 0 20px rgba(255,107,71,0.2); }
-    }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-10px); }
+      }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-6px); }
-    }
+      /* ── How it works ──────────────────────────────────────────── */
+      .section {
+        padding: 5rem 1.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        width: 100%;
+      }
 
-    .animate-slide-up { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .delay-1 { animation-delay: 0.08s; }
-    .delay-2 { animation-delay: 0.16s; }
-    .delay-3 { animation-delay: 0.24s; }
-    .delay-4 { animation-delay: 0.32s; }
-    .delay-5 { animation-delay: 0.40s; }
+      .section-label {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--coral-500);
+        margin-bottom: 1rem;
+        font-weight: 600;
+      }
 
-    .board-preview { animation: float 6s ease-in-out infinite; }
+      .section-title {
+        font-size: clamp(1.6rem, 4vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 3rem;
+      }
 
-    .winning-row .board-cell.marked {
-      animation: glow-pulse 1.5s ease-in-out infinite;
-    }
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+      }
 
-    /* ── Responsive ── */
-    @media (max-width: 480px) {
-      nav { padding: 1.25rem 0; }
-      .hero { padding: 2rem 0 1.5rem; }
-      .cta-group { gap: 0.625rem; }
-      .btn { padding: 0.75rem 1.5rem; font-size: 0.875rem; }
-    }
-  </style>
-</head>
-<body>
-  <div class="grid-bg"></div>
-  <div class="glow-coral-ambient"></div>
-  <div class="glow-electric-ambient"></div>
+      .step {
+        background: var(--ink-900);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 1.25rem;
+        padding: 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        transition: border-color 0.2s, transform 0.2s;
+      }
+      .step:hover { border-color: rgba(255, 107, 71, 0.3); transform: translateY(-3px); }
 
-  <div class="page">
-    <!-- Nav -->
-    <nav>
-      <a class="logo" href="#">
-        <span class="logo-dot"></span>
-        AI Bingo
-      </a>
-      <span class="nav-badge">v1.0</span>
-    </nav>
+      .step-number {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--coral-500);
+        letter-spacing: 0.1em;
+      }
 
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-tag">Multiplayer · Real-time · Free</div>
+      .step-icon { font-size: 1.75rem; }
 
-      <h1 class="animate-slide-up">
-        Buzzword Bingo<br />
-        <span class="gradient-text">for the AI era</span>
-      </h1>
+      .step-heading {
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
 
-      <p class="hero-sub animate-slide-up delay-1">
-        Survive your next AI keynote, all-hands, or hype-filled demo day.
-        Create a room, share the link, and mark off buzzwords together in real time.
-      </p>
+      .step-body {
+        font-size: 0.875rem;
+        color: var(--ink-400);
+        line-height: 1.6;
+        font-weight: 400;
+      }
 
-      <div class="cta-group animate-slide-up delay-2">
-        <a href="/" class="btn btn-primary">
-          Play now &rarr;
+      /* ── Feature pills ─────────────────────────────────────────── */
+      .features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        justify-content: center;
+        padding: 0 1.5rem 5rem;
+      }
+
+      .pill {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.08);
+        color: var(--ink-300);
+        background: var(--ink-800);
+        white-space: nowrap;
+      }
+
+      /* ── Footer ────────────────────────────────────────────────── */
+      footer {
+        padding: 2rem;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      footer p {
+        font-size: 0.8rem;
+        color: var(--ink-500);
+      }
+
+      footer a {
+        color: var(--ink-400);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      footer a:hover { color: var(--coral-400); }
+
+      /* ── Responsive ────────────────────────────────────────────── */
+      @media (max-width: 600px) {
+        nav { padding: 1rem 1.25rem; }
+        .hero { padding: 3.5rem 1.25rem 3rem; }
+        .section { padding: 3.5rem 1.25rem; }
+        .features { padding-bottom: 3.5rem; }
+        footer { flex-direction: column; align-items: flex-start; }
+      }
+    </style>
+  </head>
+
+  <body class="bg-grid">
+    <div class="page">
+
+      <!-- Nav -->
+      <nav>
+        <a href="/landing.html" class="nav-logo">
+          <span class="emoji">🎲</span>
+          AI Buzzword Bingo
         </a>
-        <a href="/" class="btn btn-secondary">
-          Join a game
-        </a>
+        <span class="nav-badge">Multiplayer</span>
+      </nav>
+
+      <!-- Hero -->
+      <section class="hero">
+        <p class="hero-eyebrow">Real-time · Multiplayer · Free</p>
+
+        <h1 class="hero-title">
+          Hello, <span class="accent">Buzzword</span><br />Bingo World 🤖
+        </h1>
+
+        <p class="hero-subtitle">
+          Survive your next AI-heavy meeting by playing bingo with your team.
+          Mark a word and it flips on <em>everyone's</em> board — first to five in a row wins.
+        </p>
+
+        <div class="cta-group">
+          <a href="/" class="btn btn-primary">
+            🎲 Play now
+          </a>
+          <a href="https://github.com/nicholasgriffintn/ai-buzzword-bingo" class="btn btn-secondary" target="_blank" rel="noopener">
+            ★ View on GitHub
+          </a>
+        </div>
+
+        <!-- Mini bingo board preview -->
+        <div class="bingo-preview" aria-hidden="true">
+          <!-- Row 0 -->
+          <div class="cell marked">LLM</div>
+          <div class="cell">RAG</div>
+          <div class="cell marked">AGI</div>
+          <div class="cell">Copilot</div>
+          <div class="cell win">Agentic</div>
+          <!-- Row 1 -->
+          <div class="cell">RLHF</div>
+          <div class="cell marked">GPT</div>
+          <div class="cell">Eval</div>
+          <div class="cell marked">Claude</div>
+          <div class="cell win">GenAI</div>
+          <!-- Row 2 -->
+          <div class="cell">LoRA</div>
+          <div class="cell">Distil-lation</div>
+          <div class="cell free">🤖</div>
+          <div class="cell">Grok</div>
+          <div class="cell win">Vibe Coding</div>
+          <!-- Row 3 -->
+          <div class="cell marked">Hallucin-ation</div>
+          <div class="cell">Guardrails</div>
+          <div class="cell">Frontier</div>
+          <div class="cell marked">Gemini</div>
+          <div class="cell win">P(doom)</div>
+          <!-- Row 4 -->
+          <div class="cell">Shoggoth</div>
+          <div class="cell">H100</div>
+          <div class="cell">Llama</div>
+          <div class="cell">Sora</div>
+          <div class="cell win">CUDA</div>
+        </div>
+      </section>
+
+      <!-- How it works -->
+      <div class="section">
+        <p class="section-label">How it works</p>
+        <h2 class="section-title">Four steps to meeting survival</h2>
+
+        <div class="steps">
+          <div class="step">
+            <span class="step-number">01</span>
+            <span class="step-icon">🔗</span>
+            <h3 class="step-heading">Create a session</h3>
+            <p class="step-body">Hit "Play now" to generate a unique 6-character code and AI-themed session name.</p>
+          </div>
+          <div class="step">
+            <span class="step-number">02</span>
+            <span class="step-icon">📨</span>
+            <h3 class="step-heading">Invite your team</h3>
+            <p class="step-body">Share the code or a one-click join link. Everyone gets a unique randomised board.</p>
+          </div>
+          <div class="step">
+            <span class="step-number">03</span>
+            <span class="step-icon">👂</span>
+            <h3 class="step-heading">Tap as you hear them</h3>
+            <p class="step-body">When a buzzword drops in the meeting, tap it. It marks on every board that has it — instantly.</p>
+          </div>
+          <div class="step">
+            <span class="step-number">04</span>
+            <span class="step-icon">🏆</span>
+            <h3 class="step-heading">First to five wins</h3>
+            <p class="step-body">Land five in a row — horizontal, vertical, or diagonal — and claim bragging rights.</p>
+          </div>
+        </div>
       </div>
 
-      <!-- Mini board preview -->
-      <div class="board-preview animate-slide-up delay-3">
-        <!-- Header row -->
-        <div class="board-letter">B</div>
-        <div class="board-letter">I</div>
-        <div class="board-letter">N</div>
-        <div class="board-letter">G</div>
-        <div class="board-letter">O</div>
-        <!-- Row 1 -->
-        <div class="board-cell marked">LLM</div>
-        <div class="board-cell">RAG</div>
-        <div class="board-cell marked">AGI</div>
-        <div class="board-cell">NVIDIA</div>
-        <div class="board-cell marked">GPT</div>
-        <!-- Row 2 -->
-        <div class="board-cell">Embeddings</div>
-        <div class="board-cell marked">Claude</div>
-        <div class="board-cell">Gemini</div>
-        <div class="board-cell marked">MCP</div>
-        <div class="board-cell">Cursor</div>
-        <!-- Row 3 — winning row -->
-        <div class="board-cell winning-row marked">Fine-tuning</div>
-        <div class="board-cell winning-row marked">OpenAI</div>
-        <div class="board-cell free">🤖</div>
-        <div class="board-cell winning-row marked">Agentic</div>
-        <div class="board-cell winning-row marked">MLOps</div>
-        <!-- Row 4 -->
-        <div class="board-cell">Copilot</div>
-        <div class="board-cell marked">GenAI</div>
-        <div class="board-cell">Bedrock</div>
-        <div class="board-cell">Vertex AI</div>
-        <div class="board-cell marked">Grok</div>
-        <!-- Row 5 -->
-        <div class="board-cell marked">Vibe Coding</div>
-        <div class="board-cell">Windsurf</div>
-        <div class="board-cell marked">Frontier</div>
-        <div class="board-cell">Sora</div>
-        <div class="board-cell">Anthropic</div>
+      <!-- Feature pills -->
+      <div class="features">
+        <span class="pill">⚡ WebSocket real-time sync</span>
+        <span class="pill">🌐 Shared board marking</span>
+        <span class="pill">📱 Mobile-friendly</span>
+        <span class="pill">🎊 Confetti on win</span>
+        <span class="pill">🔄 Mid-game join</span>
+        <span class="pill">🎰 95+ buzzwords</span>
+        <span class="pill">🤖 AI win messages</span>
+        <span class="pill">🕹️ No account needed</span>
       </div>
 
-      <!-- Feature chips -->
-      <div class="features animate-slide-up delay-4">
-        <span class="chip">real-time multiplayer</span>
-        <span class="chip">shared word pool</span>
-        <span class="chip">win detection</span>
-        <span class="chip">~95 AI buzzwords</span>
-        <span class="chip">shareable room link</span>
-        <span class="chip">no account needed</span>
-      </div>
-    </section>
+      <!-- Footer -->
+      <footer>
+        <p>© 2025 AI Buzzword Bingo · MIT License</p>
+        <p>
+          Built with <a href="https://partykit.io" target="_blank" rel="noopener">PartyKit</a>,
+          <a href="https://react.dev" target="_blank" rel="noopener">React</a> &amp;
+          <a href="https://tailwindcss.com" target="_blank" rel="noopener">Tailwind</a>
+        </p>
+      </footer>
 
-    <!-- Footer -->
-    <footer>
-      <span>built with PartyKit + React</span>
-      <span style="color: var(--ink-700)">·</span>
-      <span>AGI not included</span>
-    </footer>
-  </div>
-</body>
+    </div>
+  </body>
 </html>
