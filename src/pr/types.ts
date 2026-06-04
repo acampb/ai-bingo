@@ -5,3 +5,8 @@ export interface ApprovePROptions {
   token: string;
   body?: string;
 }
+
+export interface ReviewResult {
+  success: boolean;
+  reviewId?: number;
+  error?: string;
